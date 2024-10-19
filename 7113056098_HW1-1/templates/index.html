@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression Web App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Adjust the form layout to make it responsive */
+        form {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .slider-value {
+            width: 40px;
+            text-align: right;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-top: 20px;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .slider-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .slider-value {
+                margin-top: 5px;
+            }
+
+            input[type="range"] {
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Linear Regression Web App</h1>
+
+    <div class="container">
+        <!-- Display the plot -->
+        <img id="plot" src="">
+
+        <br><br>
+
+        <!-- Form for updating parameters -->
+        <form id="params-form">
+            <div class="slider-container">
+                <label for="n">Number of points (n):</label>
+                <input type="range" id="n" name="n" min="10" max="500" value="100" step="1" oninput="updateSliderValue('n-value', this.value); updatePlot()">
+                <span class="slider-value" id="n-value">100</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="variance">Variance:</label>
+                <input type="range" id="variance" name="variance" min="0" max="10" value="5" step="0.1" oninput="updateSliderValue('variance-value', this.value); updatePlot()">
+                <span class="slider-value" id="variance-value">5</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="a">Slope (a):</label>
+                <input type="range" id="a" name="a" min="-10" max="10" value="1" step="0.1" oninput="updateSliderValue('a-value', this.value); updatePlot()">
+                <span class="slider-value" id="a-value">1</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="b">Intercept (b):</label>
+                <input type="range" id="b" name="b" min="0" max="100" value="50" step="1" oninput="updateSliderValue('b-value', this.value); updatePlot()">
+                <span class="slider-value" id="b-value">50</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="c">Noise multiplier (c):</label>
+                <input type="range" id="c" name="c" min="0" max="100" value="10" step="1" oninput="updateSliderValue('c-value', this.value); updatePlot()">
+                <span class="slider-value" id="c-value">10</span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Function to update slider value text
+        function updateSliderValue(elementId, value) {
+            document.getElementById(elementId).innerText = value;
+        }
+
+        // Function to submit the form and update the plot
+        function updatePlot() {
+            $.ajax({
+                url: '/update_plot',
+                type: 'POST',
+                data: $('#params-form').serialize(),
+                success: function(data){
+                    $('#plot').attr('src', 'data:image/png;base64,' + data.plot_url);
+                }
+            });
+        }
+
+        // Trigger an initial plot rendering when the page loads
+        $(document).ready(function(){
+            updatePlot(); // Initial plot rendering
+        });
+    </script>
+</body>
+</html>
